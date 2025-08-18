@@ -82,5 +82,14 @@ class VAE_Encoder(nn.Sequential):
             # (batch_size, 4, height/8, width/8) -> (batch_size, 4, height/8, width/8)
             variance= torch.exp(logvar)
 
+            # (batch_size, 4, height/8, width/8) -> (batch_size, 4, height/8, width/8)
             std = torch.sqrt(variance)
+
+            #Z =N(0, 1) -> N(mean, variance) = mean + std * N(0, 1)
+            x = mean + std * noise
+            
+            #scale constant for stability, taken from paper 
+
+            x = 0.18215 * x
+
 
