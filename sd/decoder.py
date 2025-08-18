@@ -73,5 +73,50 @@ class VAE_ResidualBlock(nn.Module):
         
         x = x + self.residual_layer(residue)
         
+        
+        
+class VAE_Decoder():
+    def __init__(self):
+        super().__init__(
+            nn.Conv2d(4, 4, kernel_size=1, padding=0),
+            
+            nn.Conv2d(4, 512, kernel_size=3, padding=1),
+            
+            VAE_ResidualBlock(512, 512),
+            
+            VAE_AttentionBlock(512),
+            
+            VAE_ResidualBlock(512, 512),
+            
+            VAE_ResidualBlock(512, 512),
+            
+            VAE_ResidualBlock(512, 512),
+            
+            # Batch_SIze, 512, Height/8, Width/8 --- Batch_SIze, Height/8, Width/8 
+            VAE_ResidualBlock(512, 512),
+            
+            # Batch_SIze, 512, Height/8, Width/8 --- Batch_SIze, Height/4, Width/4
+            nn.Upsample(scale_factor=2),
+            
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+            
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            VAE_ResidualBlock(512, 512),
+            
+            #Batch_SIze, Height/4, Width/4 --- Batch_SIze, Height/2, Width/2
+            nn.Upsample(scale_factor=2),
+            
+            nn.Conv2d(512, 512, kernel_size=3, padding=1),
+             
+            VAE_ResidualBlock(512, 256),
+            VAE_ResidualBlock(256, 256),
+            VAE_ResidualBlock(256, 256),
+            
+            #Batch_SIze, Height/2, Width/2 --- Batch_SIze, Height, Width
+            nn.Upsample(scale_factor=2),
+            
+           
+        )
     
     
