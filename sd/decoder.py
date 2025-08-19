@@ -113,10 +113,31 @@ class VAE_Decoder():
             VAE_ResidualBlock(256, 256),
             VAE_ResidualBlock(256, 256),
             
-            #Batch_SIze, Height/2, Width/2 --- Batch_SIze, Height, Width
+            #Batch_SIze, 256, Height/2, Width/2 --- Batch_SIze, 256, Height, Width
             nn.Upsample(scale_factor=2),
             
-           
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            
+            VAE_ResidualBlock(256, 128),
+            VAE_ResidualBlock(128, 128),
+            VAE_ResidualBlock(128, 128),
+            
+            nn.GroupNorm(32, 128),
+            
+            nn.SiLU(),
+            
+            #Batch_SIze, 128, Height, Width --- Batch_SIze, 123, Height, Width
+            nn.Conv2d(128, 3, kernel_size=3, padding=1),
+              
         )
+        
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
+            # x: (Batch_Size, 4, Height/8, Width/8)
+            x /= 0.18215  # Normalize the input tensor
+
+            for module in self:
+                x = module(x)
+            # batch_size, 3, height, width
+            return x
     
     
